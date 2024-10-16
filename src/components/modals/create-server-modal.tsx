@@ -16,9 +16,10 @@ import {
 import { Form, FormControl, FormField, FormLabel, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import React, { useEffect, useState } from "react";  
+import React from "react";  
 import axios from "axios"
 import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
     name: z.string().min(1, {
@@ -30,13 +31,12 @@ const formSchema = z.object({
 })
 
 
-export const InitialServerModal = () => {
-    const[isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        setIsMounted(true)
-    },[])
+export const CreateServerModal = () => {
+    const { isOpen, onClose, type } = useModal()
     const router = useRouter()
+    
+    const isModalOpen = isOpen && type === "createServer"
+    
     const form = useForm({
         resolver : zodResolver(formSchema),
         defaultValues : {
@@ -54,18 +54,19 @@ export const InitialServerModal = () => {
 
             form.reset()
             router.refresh()
-            window.location.reload()
+            onClose()
         } catch (error) {
             console.log("Error at initial-server-modal",error)
         }
         
     }
 
-    if(!isMounted){
-        return null
+    const handleClose = () => {
+        form.reset()
+        onClose()
     }
     return (
-        <Dialog open>
+        <Dialog open={isModalOpen} onOpenChange={handleClose}>
             <DialogContent className="bg-white text-black">
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-extrabold">Customize Your Server</DialogTitle>

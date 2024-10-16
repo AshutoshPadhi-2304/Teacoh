@@ -6,9 +6,9 @@ import ActionTooltip from "../action-tooltip"
 import { cn } from "@/lib/utils"
 
 interface NavigationItemProps {
-    id : string,
-    name : string,
-    imageUrl : string
+    id : string;
+    name : string;
+    imageUrl : string;
 }
 
 const NavigationItem = ({
@@ -31,11 +31,11 @@ const NavigationItem = ({
                     params?.serverId === id ? "h-[36px]" : "h-[8px]"
                 )} />
                 <div className={cn(
-                    "realtive group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden",
+                    "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden",
                     params?.serverId === id && "bg-primary/10 text-primary rounded-[16px]"
                 )}>
                     <Image 
-                        fill
+                        fill    
                         src={imageUrl}
                         alt="Server"
                     />

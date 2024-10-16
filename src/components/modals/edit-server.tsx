@@ -16,9 +16,10 @@ import {
 import { Form, FormControl, FormField, FormLabel, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import React, { useEffect, useState } from "react";  
+import React, { useEffect } from "react";  
 import axios from "axios"
 import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
     name: z.string().min(1, {
@@ -30,13 +31,12 @@ const formSchema = z.object({
 })
 
 
-export const InitialServerModal = () => {
-    const[isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        setIsMounted(true)
-    },[])
+export const EditServer = () => {
+    const { isOpen, onClose, type, data } = useModal()
     const router = useRouter()
+    
+    const isModalOpen = isOpen && type === "editServer"
+    
     const form = useForm({
         resolver : zodResolver(formSchema),
         defaultValues : {
@@ -44,31 +44,39 @@ export const InitialServerModal = () => {
             imageUrl : ""
         }
     })
+    const {server} = data
 
+    useEffect(() => {
+        if(server){
+            form.setValue("name", server.name)
+            form.setValue("imageUrl", server.image)
+        }
+    }, [])
     const isLoading = form.formState.isSubmitting
     const onSubmit = async (values : z.infer<typeof formSchema>) => {
         try {
             values.imageUrl = "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg"
 
-            const response = await axios.post("/api/servers", values)
+            const response = await axios.patch(`/api/servers/${server?.id}`, values)
 
             form.reset()
             router.refresh()
-            window.location.reload()
+            onClose()
         } catch (error) {
             console.log("Error at initial-server-modal",error)
         }
         
     }
 
-    if(!isMounted){
-        return null
+    const handleClose = () => {
+        form.reset()
+        onClose()
     }
     return (
-        <Dialog open>
+        <Dialog open={isModalOpen} onOpenChange={handleClose}>
             <DialogContent className="bg-white text-black">
                 <DialogHeader>
-                    <DialogTitle className="text-center text-2xl font-extrabold">Customize Your Server</DialogTitle>
+                    <DialogTitle className="text-center text-2xl font-extrabold">Edit Your Server</DialogTitle>
                     <DialogDescription className="text-center font-semibold text-zinc-600">Give your server a Name and a Avatar. You can change it later.</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
